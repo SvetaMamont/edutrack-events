@@ -1,83 +1,85 @@
-import { fetchEvents } from './api.js';
-import { StorageService } from './storage.js';
-import { Header, EventCard } from './components.js';
+const { useState, useEffect } = React;
 
-// Імітація State (стан додатка)
-let state = {
-    events: [],
-    searchQuery: '',
-    favorites: StorageService.getFavorites(),
-    page: 1,
-    isLoading: false
-};
+// Компонент картки (Props)
+const EventCard = ({ event, isFav, onFavClick }) => (
+    <div className={`card ${isFav ? 'highlight' : ''}`}>
+        <h3>{event.title}</h3>
+        <p>{event.body}</p>
+        <div className="meta">ID: {event.id}</div>
+        <button 
+            className={`fav-btn ${isFav ? 'active' : ''}`} 
+            onClick={() => onFavClick(event.id)}
+        >
+            {isFav ? ' У вибраному' : 'Цікаво'}
+        </button>
+    </div>
+);
 
-const container = document.getElementById('event-container');
-const headerContainer = document.getElementById('header-root');
+// Головний додаток (State)
+const App = () => {
+    const [events, setEvents] = useState([]);
+    const [search, setSearch] = useState('');
+    const [favorites, setFavorites] = useState([]);
+    const [page, setPage] = useState(1);
 
-// Функція рендерингу (аналог React render)
-function render() {
-    // Рендерим заголовок
-    headerContainer.innerHTML = Header(state.searchQuery);
-    
-    // Фільтруємо список (Вимога завдання)
-    const filtered = state.events.filter(ev => 
-        ev.title.toLowerCase().includes(state.searchQuery.toLowerCase())
+    // Завантаження даних
+    useEffect(() => {
+        fetch(`https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=10`)
+            .then(res => res.json())
+            .then(data => setEvents(prev => [...prev, ...data]));
+        
+        // Завантаження вибраного
+        const saved = JSON.parse(localStorage.getItem('favs')) || [];
+        setFavorites(saved);
+    }, [page]);
+
+    // Infinite Scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+                setPage(prev => prev + 1);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const toggleFav = (id) => {
+        const newFavs = [...favorites, id];
+        setFavorites(newFavs);
+        localStorage.setItem('favs', JSON.stringify(newFavs));
+    };
+
+    const filteredEvents = events.filter(e => 
+        e.title.toLowerCase().includes(search.toLowerCase())
     );
 
-    // Рендерим список
-    container.innerHTML = filtered.map(event => EventCard({
-        event,
-        isFav: state.favorites.includes(event.id),
-        onFavClick: () => {} // Обробка нижче через делегування
-    })).join('');
+    return (
+        <div>
+            <header>
+                <h1>EduTrack Lite</h1>
+                <input 
+                    type="text" 
+                    placeholder="Пошук..." 
+                    value={search} // Controlled component
+                    onChange={(e) => setSearch(e.target.value)}
+                    id="search-input"
+                />
+            </header>
+            <div className="grid-container">
+                {filteredEvents.map(event => (
+                    <EventCard 
+                        key={event.id} 
+                        event={event} 
+                        isFav={favorites.includes(event.id)}
+                        onFavClick={toggleFav}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
 
-    // Повертаємо фокус в інпут після перемальовки
-    const input = document.getElementById('search-input');
-    input.focus();
-    input.setSelectionRange(input.value.length, input.value.length);
-}
-
-// Завантаження даних (Твій функціонал)
-async function loadMore() {
-    if (state.isLoading) return;
-    state.isLoading = true;
-    
-    try {
-        const newData = await fetchEvents(state.page);
-        state.events = [...state.events, ...newData];
-        state.page++;
-        render();
-    } catch (err) {
-        console.error(err);
-    } finally {
-        state.isLoading = false;
-    }
-}
-
-// Події Пошуку (Керований компонент)
-headerContainer.addEventListener('input', (e) => {
-    if (e.target.id === 'search-input') {
-        state.searchQuery = e.target.value;
-        render(); // Динамічна фільтрація
-    }
-});
-
-// Події кнопок (LocalStorage)
-container.addEventListener('click', (e) => {
-    if (e.target.classList.contains('fav-btn')) {
-        const id = parseInt(e.target.dataset.id);
-        StorageService.save(id);
-        state.favorites = StorageService.getFavorites();
-        render();
-    }
-});
-
-// Infinite Scroll (Твій функціонал)
-window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        loadMore();
-    }
-});
-
-// Старт
-loadMore();
+// Рендеринг
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
