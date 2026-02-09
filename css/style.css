@@ -1,0 +1,138 @@
+:root {
+    --primary-color: #4a90e2;
+    --accent-color: #f39c12;
+    --bg-color: #f4f7f6;
+    --text-color: #333;
+    --card-bg: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Header з керованим інпутом */
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0 0 1rem 0;
+}
+
+#search-input {
+    width: 80%;
+    max-width: 500px;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Адаптивна сітка (Grid) */
+.grid-container {
+    display: grid;
+    /* Створює колонки автоматично, мінімум 300px кожна */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Стилізація картки (EventCard) */
+.card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+.card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #666;
+}
+
+.meta {
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+/* Кнопка "Цікаво" */
+.fav-btn {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.fav-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.fav-btn.active {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Лоадер */
+#loader {
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    #search-input {
+        width: 90%;
+    }
+
+    .grid-container {
+        grid-template-columns: 1fr;
+        /* Одна колонка на маленьких екранах */
+        padding: 20px 10px;
+    }
+}
