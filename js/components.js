@@ -4,11 +4,21 @@ const HomePage = () => {
     if (!router) return null;
 
     const { Link } = router;
-    const [events, setEvents] = React.useState([]);
+    const dispatch = ReactRedux.useDispatch();
 
+    const events = ReactRedux.useSelector(
+  state => Object.values(state.events.entities)
+);
+
+const loading =
+  ReactRedux.useSelector(
+    state => state.events.loading
+        );
+    
     React.useEffect(() => {
-        window.api?.fetchEvents().then(setEvents);
-    }, []);
+  dispatch(window.actions.fetchEvents());
+}, [dispatch]);
+    
 
     return (
         <div className="grid-container">
@@ -95,23 +105,49 @@ const ParticipantsPage = () => {
 
     const { useParams, Link } = router;
     const { eventId } = useParams();
-    const [participants, setParticipants] = React.useState([]);
+    const dispatch = ReactRedux.useDispatch();
 
+    const participants =
+  ReactRedux.useSelector(
+    window.selectFilteredParticipants
+        );
+    
+    const loading =
+  ReactRedux.useSelector(
+    s => s.participants.loading
+        );
+    
     React.useEffect(() => {
-        fetch(`https://jsonplaceholder.typicode.com/posts/${eventId}/comments`)
-            .then(res => res.json())
-            .then(data => setParticipants(data));
-    }, [eventId]);
+  dispatch(
+    window.actions.fetchParticipants(eventId)
+  );
+    }, [eventId, dispatch]);
+    
 
     return (
-        <div className="participants-container">
-            <h2>Учасники події #{eventId}</h2>
-            <ul>
-                {participants.map(p => (
-                    <li key={p.id}><strong>{p.name}</strong> — {p.email}</li>
-                ))}
-            </ul>
-            <Link to="/">← Назад</Link>
-        </div>
-    );
+    <div className="participants-container">
+        <h2>Учасники події #{eventId}</h2>
+
+        <input
+            placeholder="Пошук по імені або email"
+            onChange={(e)=>
+                dispatch(
+                    window.actions.setSearch(e.target.value)
+                )
+            }
+        />
+
+        {loading && <p>Loading...</p>}
+
+        <ul>
+            {participants.map(p => (
+                <li key={p.id}>
+                    <strong>{p.name}</strong> — {p.email}
+                </li>
+            ))}
+        </ul>
+
+        <Link to="/">← Назад</Link>
+    </div>
+);
 };
