@@ -21,18 +21,33 @@ const loading =
     
 
     return (
+    <div>
+
+        {/* кнопка переходу */}
+        <Link to="/analytics" className="analytics-btn">
+             Аналітика
+        </Link>
+
         <div className="grid-container">
             {events.map(event => (
                 <div key={event.id} className="card">
                     <h3>{event.title}</h3>
+
                     <div className="actions">
-                        <Link to={`/register/${event.id}`}>Реєстрація</Link>
-                        <Link to={`/participants/${event.id}`}>Учасники</Link>
+                        <Link to={`/register/${event.id}`}>
+                            Реєстрація
+                        </Link>
+
+                        <Link to={`/participants/${event.id}`}>
+                            Учасники
+                        </Link>
                     </div>
+
                 </div>
             ))}
         </div>
-    );
+    </div>
+);
 };
 
 
@@ -150,4 +165,60 @@ const ParticipantsPage = () => {
         <Link to="/">← Назад</Link>
     </div>
 );
+};
+
+// --- СТОРІНКА АНАЛІТИКИ ---
+const AnalyticsPage = () => {
+
+    const dispatch = ReactRedux.useDispatch();
+    const participants =
+        ReactRedux.useSelector(
+            state => Object.values(state.participants.entities)
+        );
+
+    React.useEffect(() => {
+        dispatch(window.actions.fetchParticipants(1));
+    }, [dispatch]);
+
+    const registrationsByDay = React.useMemo(() => {
+        const result = {};
+
+        participants.forEach(p => {
+            const day =
+                new Date(Date.now() - (p.id % 7) * 86400000)
+                .toLocaleDateString();
+
+            result[day] = (result[day] || 0) + 1;
+        });
+
+        return {
+            labels: Object.keys(result),
+            datasets: [{
+                label: "Реєстрації",
+                data: Object.values(result)
+            }]
+        };
+    }, [participants]);
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: { position: "top" }
+        }
+    };
+
+    const { Line } = window["react-chartjs-2"];
+
+    return (
+        <div className="analytics">
+            <h2>Аналітика реєстрацій</h2>
+
+            <div style={{maxWidth:"900px"}}>
+                <Line
+                    data={registrationsByDay}
+                    options={options}
+                />
+            </div>
+        </div>
+    );
 };

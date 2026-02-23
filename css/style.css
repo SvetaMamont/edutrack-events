@@ -136,3 +136,19 @@ header h1 {
         padding: 20px 10px;
     }
 }
+
+.analytics {
+    padding: 20px;
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+
+@media (max-width: 768px) {
+    h2 {
+        font-size: 18px;
+        text-align: center;
+    }
+}
