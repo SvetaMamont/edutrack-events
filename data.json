@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Frontend Meetup",
+    "description": "Зустріч фронтенд розробників",
+    "date": "2026-03-20",
+    "organizer": "IT Club"
+  },
+  {
+    "title": "React Workshop",
+    "description": "Практика з React",
+    "date": "2026-03-25",
+    "organizer": "Dev School"
+  },
+  {
+    "title": "Web Conference",
+    "description": "Конференція по веб розробці",
+    "date": "2026-04-02",
+    "organizer": "Tech Community"
+  }
+]
