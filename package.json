@@ -19,5 +19,8 @@
   "homepage": "https://github.com/SvetaMamont/edutrack-events#readme",
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
