@@ -1,62 +1,64 @@
-import http from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { URL } from 'node:url';
+import express from "express"
+import { connectDB } from "./db.js"
 
-import { PORT, DATA_FILE } from './config.js';
-import { logRequest } from './logger.js';
+import Event from "./models/Event.js"
+import Participant from "./models/Participant.js"
 
-const server = http.createServer(async (req, res) => {
+const app = express()
+const PORT = 3000
 
-  logRequest(req);
+await connectDB()
 
-  const url = new URL(req.url, `http://${req.headers.host}`);
+app.use(express.json())
+
+app.get("/events", async (req, res) => {
 
   try {
 
-    // API EVENTS
-    if (url.pathname === '/api/events' && req.method === 'GET') {
+    const { cursor, limit = 5, sort = "date" } = req.query
 
-      const data = await readFile(DATA_FILE, 'utf-8');
+    const query = {}
 
-      res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 200;
-      res.end(data);
-
-      return;
+    if (cursor) {
+      query._id = { $gt: cursor }
     }
 
-    // ГОЛОВНА СТОРІНКА
-    if (url.pathname === '/' && req.method === 'GET') {
+    const events = await Event
+      .find(query)
+      .sort({ [sort]: 1 })
+      .limit(Number(limit))
 
-      const html = await readFile('./index.html', 'utf-8');
+    const nextCursor = events.length
+      ? events[events.length - 1]._id
+      : null
 
-      res.setHeader('Content-Type', 'text/html');
-      res.statusCode = 200;
-      res.end(html);
-
-      return;
-    }
-
-    // 404
-    res.statusCode = 404;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({
-      error: "Маршрут не знайдено"
-    }));
+    res.json({
+      data: events,
+      nextCursor
+    })
 
   } catch (error) {
-
-    // 500
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({
-      error: "Помилка сервера"
-    }));
-
+    res.status(500).json({ error: error.message })
   }
 
-});
+})
 
-server.listen(PORT, () => {
-  console.log(`Server running: http://localhost:${PORT}`);
-});
+app.get("/participants/:eventId", async (req, res) => {
+
+  try {
+
+    const participants = await Participant.find({
+      eventId: req.params.eventId
+    })
+
+    res.json(participants)
+
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+
+})
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`)
+})
