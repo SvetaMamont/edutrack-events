@@ -62,3 +62,13 @@ app.get("/participants/:eventId", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
 })
+
+const session = require("express-session");
+
+app.use(
+  session({
+    secret: "secret-key",
+    resave: false,
+    saveUninitialized: false
+  })
+);
