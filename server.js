@@ -72,3 +72,34 @@ app.use(
     saveUninitialized: false
   })
 );
+
+const { ApolloServer } = require('apollo-server-express');
+
+const typeDefs = require('./graphql/schema');
+const resolvers = require('./graphql/resolvers');
+
+async function startServer() {
+
+const server = new ApolloServer({
+typeDefs,
+resolvers,
+context: ({ req }) => {
+
+return {
+user: req.user // беремо користувача з auth middleware
+};
+
+}
+});
+
+await server.start();
+
+server.applyMiddleware({ app });
+
+}
+
+startServer();
+
+app.listen(3000, () => {
+console.log("Server running on port 3000");
+});
