@@ -1,15 +1,16 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const participantSchema = new mongoose.Schema({
+const ParticipantSchema = new mongoose.Schema({
   name: String,
   email: String,
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Event"
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-// індекс для швидкого пошуку учасників події
-participantSchema.index({ eventId: 1 });
-
-export default mongoose.model("Participant", participantSchema);
+module.exports = mongoose.model("Participant", ParticipantSchema);

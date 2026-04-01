@@ -1,36 +1,32 @@
 const express = require("express");
+const Event = require("../models/Event");
+const auth = require("../middleware/auth");
+
 const router = express.Router();
 
-const isAuthenticated = require("../middleware/auth");
-const checkRole = require("../middleware/roles");
+router.post("/", auth, async (req,res)=>{
 
+ const event = new Event(req.body);
 
-// Organizer + Admin можуть переглядати подію
-router.get("/events/:id/participants",
-  isAuthenticated,
-  (req, res) => {
-    res.json({ message: "Список учасників події" });
-  }
-);
+ await event.save();
 
+ res.json(event);
 
-// ТІЛЬКИ Admin може видаляти події
-router.delete("/events/:id",
-  isAuthenticated,
-  checkRole("Admin"),
-  (req, res) => {
-    res.json({ message: "Подія видалена (Admin)" });
-  }
-);
-
-
-// ТІЛЬКИ Admin може редагувати учасників
-router.put("/events/:id/participants",
-  isAuthenticated,
-  checkRole("Admin"),
-  (req, res) => {
-    res.json({ message: "Список учасників оновлено (Admin)" });
-  }
-);
+});
 
 module.exports = router;
+
+router.get("/", async (req,res)=>{
+
+ const page = parseInt(req.query.page) || 1
+ const limit = 10
+
+ const skip = (page - 1) * limit
+
+ const events = await Event.find()
+   .skip(skip)
+   .limit(limit)
+
+ res.json(events)
+
+});

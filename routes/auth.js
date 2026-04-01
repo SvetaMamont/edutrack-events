@@ -1,27 +1,43 @@
+const express = require("express");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 
-app.post("/login", async (req, res) => {
+const router = express.Router();
 
-  const { username, password } = req.body;
+router.post("/register", async (req,res)=>{
 
-  const user = await User.findOne({ username });
+ const {email,password} = req.body;
 
-  if (!user) {
-    return res.status(400).json({ message: "Користувача не знайдено" });
-  }
+ const hashedPassword = await bcrypt.hash(password,10);
 
-  const isMatch = await bcrypt.compare(password, user.password);
+ const user = new User({
+   email,
+   password: hashedPassword
+ });
 
-  if (!isMatch) {
-    return res.status(400).json({ message: "Невірний пароль" });
-  }
+ await user.save();
 
-  req.session.user = {
-    id: user._id,
-    username: user.username,
-    role: user.role
-  };
+ res.json(user);
 
-  res.json({ message: "Успішний вхід" });
+});
+
+router.post("/login", async (req,res)=>{
+
+ const {email,password} = req.body;
+
+ const user = await User.findOne({email});
+
+ if(!user){
+   return res.status(404).json({message:"User not found"});
+ }
+
+ const match = await bcrypt.compare(password,user.password);
+
+ if(match){
+   req.session.userId = user._id
+   res.json({message:"Login success"})
+ }else{
+   res.status(401).json({message:"Wrong password"})
+ }
+
 });

@@ -1,9 +1,9 @@
-function isAuthenticated(req, res, next) {
-  if (req.session.user) {
-    return next();
+module.exports = function(req,res,next){
+
+  if(!req.session.userId){
+    return res.status(401).json({message:"Unauthorized"});
   }
 
-  res.status(401).json({ message: "Необхідно увійти в систему" });
-}
+  next();
 
-module.exports = isAuthenticated;
+}

@@ -1,7 +1,6 @@
 {
   "name": "events-project",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
@@ -11,8 +10,10 @@
   },
   "dependencies": {
     "apollo-server-express": "^3.13.0",
+    "bcrypt": "^6.0.0",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "graphql": "^16.13.2",
-    "mongoose": "^9.3.0"
+    "mongoose": "^9.3.3"
   }
 }

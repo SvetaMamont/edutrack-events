@@ -1,12 +1,10 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const eventSchema = new mongoose.Schema({
+const EventSchema = new mongoose.Schema({
   title: String,
-  date: Date
+  description: String,
+  date: Date,
+  createdBy: String
 });
 
-// індекси для швидкого пошуку і сортування
-eventSchema.index({ date: 1 });
-eventSchema.index({ title: 1 });
-
-export default mongoose.model("Event", eventSchema);
+module.exports = mongoose.model("Event", EventSchema);
